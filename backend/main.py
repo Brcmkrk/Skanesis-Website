@@ -16,9 +16,16 @@ def create_app():
     @app.route('/', defaults={'path': ''})
     @app.route('/<path:path>')
     def serve(path):
+        if not os.path.exists(app.static_folder):
+            return "Backend is running. Frontend build not found.", 200
+            
         if path != "" and os.path.exists(os.path.join(app.static_folder, path)):
             return app.send_static_file(path)
-        return app.send_static_file('index.html')
+        
+        index_path = os.path.join(app.static_folder, 'index.html')
+        if os.path.exists(index_path):
+            return app.send_static_file('index.html')
+        return "Backend is running. index.html not found.", 200
         
     return app
 
