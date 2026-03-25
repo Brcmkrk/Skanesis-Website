@@ -62,10 +62,9 @@ function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiB
                 </div>
 
                 <div className="nav-links">
+                    <button onClick={() => setCurrentView('company')} className="nav-text-link">Weld Scan Technologies</button>
                     <a href="#features" className="nav-text-link">Features</a>
                     <button onClick={() => setShowSubscriptions(true)} className="nav-text-link">Subscriptions</button>
-                    <a href="#about" className="nav-text-link">About Us</a>
-                    <a href="#contact" className="nav-text-link">Contact</a>
                     {loggedInUser ? (
                         <div className="nav-user-menu">
                             <button className="nav-user-trigger" onClick={() => setDropdownOpen(!dropdownOpen)}>
@@ -194,46 +193,10 @@ function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiB
                 </div>
             </section>
 
-            {/* CTA Section */}
-            <section className="cta-section">
-                <h2>Ready to Transform Your Inspection Process?</h2>
-                <p>Join the leading companies already using Skanesis to guarantee structural integrity.</p>
-                <button
-                    className="btn-primary hero-btn cta-btn"
-                    onClick={() => setCurrentView('signup')}
-                >
-                    Create Free Account
-                </button>
-            </section>
-
             {/* Footer */}
             <footer className="footer">
-                <div className="footer-content">
-                    <div className="footer-brand">
-                        <img src={appLogo} alt="Skanesis Logo" className="footer-logo" />
-                        <span className="footer-title">Skanesis</span>
-                        <p className="footer-desc">Advanced welding inspection software for the modern era.</p>
-                    </div>
-                    <div className="footer-links">
-                        <h4>Product</h4>
-                        <a href="#features">Features</a>
-                        <button onClick={() => setShowSubscriptions(true)} className="nav-text-link footer-btn">Pricing</button>
-                        <a href="#demo">Request Demo</a>
-                    </div>
-                    <div className="footer-links">
-                        <h4>Company</h4>
-                        <a href="#about">About Us</a>
-                        <a href="#contact">Contact</a>
-                        <a href="#careers">Careers</a>
-                    </div>
-                    <div className="footer-links">
-                        <h4>Legal</h4>
-                        <a href="#privacy">Privacy Policy</a>
-                        <a href="#terms">Terms of Service</a>
-                    </div>
-                </div>
                 <div className="footer-bottom">
-                    <p>&copy; 2026 Skanesis. All rights reserved.</p>
+                    <p>&copy; 2026 Skanesis by Weld Scan Technologies. All rights reserved.</p>
                 </div>
             </footer>
 

@@ -534,6 +534,12 @@ body {
   letter-spacing: 1px;
 }
 
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
 .nav-text-link {
   background: transparent;
   border: none;

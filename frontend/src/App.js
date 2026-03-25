@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import './App.css';
 import appLogo from './assets/appLogo.png';
 import Home from './Home';
+import CompanyHome from './CompanyHome';
 
 const API_BASE = process.env.REACT_APP_API_BASE || "/api/auth";
 
 function App() {
-  // 'home', 'login', 'signup', 'verification'
-  const [currentView, setCurrentView] = useState('home');
-  const [loggedInUser, setLoggedInUser] = useState(null); // { username, role }
+  // 'company', 'home', 'login', 'signup', 'verification'
+  const [currentView, setCurrentView] = useState('company');
+  const [loggedInUser, setLoggedInUser] = useState(null);
 
   // Form States - Login
   const [loginUsername, setLoginUsername] = useState("");
@@ -175,7 +176,6 @@ function App() {
       return;
     }
 
-    // ── API call ─────────────────────────────────────────────────────────────
     setFormError("");
     setIsLoading(true);
 
@@ -189,7 +189,7 @@ function App() {
         body: JSON.stringify({
           username: username.trim(),
           email: email.trim(),
-          password, // Keeping it here just in case, though backend extracts what it needs
+          password,
         }),
       });
 
@@ -198,7 +198,6 @@ function App() {
       if (data.success) {
         setCurrentView('verification');
       } else {
-        // Map backend error codes to user-friendly messages
         switch (data.code) {
           case 1:
             setFormError("An account with this email already exists.");
@@ -425,24 +424,11 @@ function App() {
 
   return (
     <div className="App">
-      {/* Top Navigation Wrapper for Auth screens so user can return Home */}
-      {currentView !== 'home' && (
-        <nav className="navbar compact animate-slide-up">
-          <div className="nav-brand" onClick={() => setCurrentView('home')} style={{ cursor: 'pointer' }}>
-            <img src={appLogo} alt="Skanesis Logo" className="nav-logo" />
-            <span className="nav-title">Skanesis</span>
-          </div>
-          <div className="nav-links">
-            <button className="nav-text-link">About Us</button>
-            <button className="nav-text-link">Contact</button>
-            <button className="nav-btn-outline" onClick={() => setCurrentView('home')}>
-              Back to Home
-            </button>
-          </div>
-        </nav>
-      )}
-
-      {currentView === 'home' ? (
+      {/* Company Page (Weld Scan Technologies) */}
+      {currentView === 'company' ? (
+        <CompanyHome setCurrentView={setCurrentView} />
+      ) : currentView === 'home' ? (
+        /* Skanesis Product Page */
         <Home 
           currentView={currentView} 
           setCurrentView={setCurrentView} 
@@ -451,7 +437,21 @@ function App() {
           apiBase={API_BASE}
         />
       ) : (
-        renderAuthView()
+        /* Auth Views (Login, Signup, Verification) */
+        <>
+          <nav className="navbar compact animate-slide-up">
+            <div className="nav-brand" onClick={() => setCurrentView('home')} style={{ cursor: 'pointer' }}>
+              <img src={appLogo} alt="Skanesis Logo" className="nav-logo" />
+              <span className="nav-title">Skanesis</span>
+            </div>
+            <div className="nav-links">
+              <button className="nav-btn-outline" onClick={() => setCurrentView('home')}>
+                Back to Skanesis
+              </button>
+            </div>
+          </nav>
+          {renderAuthView()}
+        </>
       )}
     </div>
   );
