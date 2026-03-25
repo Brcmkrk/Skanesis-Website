@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env
+
+# NodeJS/React
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Firebase/Secrets
+jsons/*.json
+
+# macOS
+.DS_Store
