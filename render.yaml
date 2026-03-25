@@ -4,12 +4,10 @@ services:
     name: skanesis-api
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn "backend.main:create_app()"
+    startCommand: gunicorn -b 0.0.0.0:$PORT "backend.main:create_app()"
     envVars:
       - key: PYTHON_VERSION
         value: 3.10.0
-      - key: PORT
-        value: 5000
 
   # 2. Frontend (Static Site)
   - type: web
