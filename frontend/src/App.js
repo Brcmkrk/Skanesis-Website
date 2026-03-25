@@ -429,7 +429,9 @@ function App() {
       {/* Show Navbar only for non-home views if needed, or handle inside components */}
       
       {currentView === 'company' ? (
-        <CompanyHome setCurrentView={setCurrentView} />
+        <div className="company-view">
+          <CompanyHome setCurrentView={setCurrentView} />
+        </div>
       ) : currentView === 'skanesis-home' || (currentView === 'home' && loggedInUser) ? (
         <SkanesisHome 
           currentView={currentView} 

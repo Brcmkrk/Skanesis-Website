@@ -62,11 +62,6 @@ function CompanyHome({ setCurrentView }) {
                         <p>Automated welding defect detection powered by advanced neural networks. Speed up your inspection by 500%.</p>
                         <button className="btn-primary" onClick={() => setCurrentView('skanesis-home')}>View Skanesis</button>
                     </div>
-                    <div className="product-card">
-                        <h3>WeldMaster 3000</h3>
-                        <p>Portable ultrasonic testing device for on-site inspections. Rugged, durable, and precise.</p>
-                        <button className="btn-secondary">Coming Soon</button>
-                    </div>
                 </div>
             </section>
 
