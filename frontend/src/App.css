@@ -15,16 +15,6 @@ body {
   cursor: default;
 }
 
-:root {
-  --primary-blue: #0ea5e9;
-  --secondary-blue: #0369a1;
-  --bg-white: #ffffff;
-  --bg-light-blue: #f8fafc;
-  --text-dark: #1e293b;
-  --text-muted: #64748b;
-  --accent-light: #e0f2fe;
-}
-
 .App {
   min-height: 100vh;
   display: flex;
@@ -512,11 +502,10 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 0 5%;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(15, 12, 41, 0.7);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  z-index: 1000;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  z-index: 100;
 }
 
 .navbar.compact {
@@ -1345,96 +1334,7 @@ body {
   to { opacity: 0; }
 }
 
+
 .logout-fade-out {
   animation: fadeOut 0.5s ease-out forwards;
-}
-
-/* === COMPANY HOME SCOPED STYLES === */
-.company-view {
-  background: white;
-  color: var(--text-dark);
-  min-height: 100vh;
-  width: 100%;
-  display: block; /* Ensure it's a block container */
-}
-
-.company-view .navbar {
-  background: rgba(255, 255, 255, 0.9);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-}
-
-.company-view .nav-title {
-  color: var(--secondary-blue);
-  text-shadow: none;
-}
-
-.company-view .nav-text-link {
-  color: var(--text-dark);
-}
-
-.company-view .nav-text-link:hover {
-  color: var(--primary-blue);
-  text-shadow: none;
-}
-
-.company-view .company-hero {
-  padding: 160px 5% 100px;
-  text-align: center;
-  background: white;
-  background-image: radial-gradient(circle at top right, var(--accent-light) 0%, white 50%);
-}
-
-.company-view .company-section {
-  padding: 100px 10%;
-  background: white;
-}
-
-.company-view .company-section.light-bg {
-  background: var(--bg-light-blue);
-}
-
-.company-view .section-header h2 {
-  font-size: 42px;
-  color: var(--secondary-blue);
-  margin-bottom: 10px;
-}
-
-.company-view .about-card {
-  background: white;
-  border: 1px solid var(--accent-light);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-.company-view .about-card h3 { color: var(--primary-blue); }
-.company-view .about-card p { color: var(--text-dark); }
-
-.company-view .product-card {
-  background: white;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-}
-.company-view .product-card h3 { color: var(--text-dark); }
-.company-view .product-card p { color: var(--text-muted); }
-
-.company-view .contact-form {
-  background: var(--bg-light-blue);
-}
-
-.company-view .input-field {
-  background-color: #fff;
-  border: 1px solid #e2e8f0;
-  color: var(--text-dark);
-}
-
-.company-view .input-field:focus {
-  border-color: var(--primary-blue);
-  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
-  background-color: #fff;
-}
-
-.company-view .footer {
-  background: var(--bg-light-blue);
-  color: var(--text-muted);
-  border-top: 1px solid #e2e8f0;
 }

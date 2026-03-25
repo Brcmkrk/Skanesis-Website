@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import './App.css';
 import appLogo from './assets/appLogo.png';
-import CompanyHome from './CompanyHome';
-import SkanesisHome from './SkanesisHome';
+import Home from './Home';
 
 const API_BASE = process.env.REACT_APP_API_BASE || "/api/auth";
 
 function App() {
-  // 'company', 'skanesis-home', 'login', 'signup', 'verification'
-  const [currentView, setCurrentView] = useState('company');
+  // 'home', 'login', 'signup', 'verification'
+  const [currentView, setCurrentView] = useState('home');
   const [loggedInUser, setLoggedInUser] = useState(null); // { username, role }
 
   // Form States - Login
@@ -102,7 +101,7 @@ function App() {
           role: data.role || "user",
           subscriptionType: data.subscription_type || "regular"
         });
-        setCurrentView('skanesis-home');
+        setCurrentView('home');
       } else {
         setFormError(data.message || "Invalid username or password.");
       }
@@ -426,14 +425,25 @@ function App() {
 
   return (
     <div className="App">
-      {/* Show Navbar only for non-home views if needed, or handle inside components */}
-      
-      {currentView === 'company' ? (
-        <div className="company-view">
-          <CompanyHome setCurrentView={setCurrentView} />
-        </div>
-      ) : currentView === 'skanesis-home' || (currentView === 'home' && loggedInUser) ? (
-        <SkanesisHome 
+      {/* Top Navigation Wrapper for Auth screens so user can return Home */}
+      {currentView !== 'home' && (
+        <nav className="navbar compact animate-slide-up">
+          <div className="nav-brand" onClick={() => setCurrentView('home')} style={{ cursor: 'pointer' }}>
+            <img src={appLogo} alt="Skanesis Logo" className="nav-logo" />
+            <span className="nav-title">Skanesis</span>
+          </div>
+          <div className="nav-links">
+            <button className="nav-text-link">About Us</button>
+            <button className="nav-text-link">Contact</button>
+            <button className="nav-btn-outline" onClick={() => setCurrentView('home')}>
+              Back to Home
+            </button>
+          </div>
+        </nav>
+      )}
+
+      {currentView === 'home' ? (
+        <Home 
           currentView={currentView} 
           setCurrentView={setCurrentView} 
           loggedInUser={loggedInUser} 
