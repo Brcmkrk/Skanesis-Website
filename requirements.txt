@@ -1,0 +1,7 @@
+flask
+flask-cors
+firebase-admin
+gunicorn
+google-api-core
+python-dotenv
+bcrypt

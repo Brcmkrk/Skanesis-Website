@@ -3,7 +3,7 @@ import './App.css';
 import appLogo from './assets/appLogo.png';
 import Home from './Home';
 
-const API_BASE = "https://f328-178-241-126-209.ngrok-free.app/api/auth";
+const API_BASE = process.env.REACT_APP_API_BASE || "/api/auth";
 
 function App() {
   // 'home', 'login', 'signup', 'verification'
