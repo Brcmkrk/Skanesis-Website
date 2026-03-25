@@ -1,14 +1,11 @@
-import sys
-import os
 import random
 from datetime import datetime, timezone, timedelta
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from flask import Blueprint, request, jsonify
-from authenticationLogic.createAdmin import create_admin
-from authenticationLogic.createUser import create_user, validate_email, validate_password
-from authenticationLogic.authentication import Auth
-from authenticationLogic.config import db
+from backend.authenticationLogic.createAdmin import create_admin
+from backend.authenticationLogic.createUser import create_user, validate_email, validate_password
+from backend.authenticationLogic.authentication import Auth
+from backend.authenticationLogic.config import db
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 

@@ -1,5 +1,5 @@
 import bcrypt
-from authenticationLogic.config import db
+from backend.authenticationLogic.config import db
 
 
 class Auth:

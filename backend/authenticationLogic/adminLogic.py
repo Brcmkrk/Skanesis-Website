@@ -1,7 +1,7 @@
 import re
 import bcrypt
-from authenticationLogic.config import db
-from authenticationLogic.emailService import EmailService
+from backend.authenticationLogic.config import db
+from backend.authenticationLogic.emailService import EmailService
 
 
 class AdminUserService:

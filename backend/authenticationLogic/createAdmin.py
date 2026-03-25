@@ -1,6 +1,6 @@
 import re
 import bcrypt
-from authenticationLogic.config import db
+from backend.authenticationLogic.config import db
 
 
 def create_admin(username, email, password):

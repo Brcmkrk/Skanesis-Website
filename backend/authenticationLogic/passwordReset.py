@@ -3,7 +3,8 @@ import secrets
 import re
 from datetime import datetime, timedelta, timezone
 from firebase_admin import firestore
-from authenticationLogic.config import db
+from backend.authenticationLogic.config import db
+from backend.authenticationLogic.emailService import EmailService
 
 
 class PasswordResetService:
