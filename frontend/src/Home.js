@@ -48,28 +48,27 @@ function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiB
         initRC();
     }, [loggedInUser]);
 
-    const handlePurchase = async (pkg) => {
-        if (!pkg) return;
+    const handlePurchase = async (pkg, expectedType) => {
+        if (!pkg) {
+            // Fallback for demo or test mode if RevenueCat products aren't fully configured
+            return updateSubscription(expectedType);
+        }
         setIsUpdating(true);
         try {
             const { customerInfo } = await Purchases.purchasePackage(pkg);
-            const entitlements = customerInfo.entitlements.active;
-            if (entitlements['Weld Scan Technologies / Skanesis Pro'] || entitlements['Pro'] || entitlements['pro']) {
-                setIsPro(true);
-                // Also update local User state if needed
-                if (loggedInUser) {
-                    setLoggedInUser({ ...loggedInUser, subscriptionType: 'premium' });
-                }
-                alert("Subscription Success: You are now a Premium user!");
-            }
+            // On successful RC purchase, explicitly sync with the Firebase backend
+            // so the user's role and type match the Skanesis logic
+            await updateSubscription(expectedType);
+            alert(`Subscription Success: You are now a ${expectedType.toUpperCase()} user!`);
         } catch (e) {
             console.error("Purchase error", e);
             if (!e.userCancelled) {
-                alert(`Test Purchase Error: To complete the test on web, ensure Stripe Test Mode is configured in RevenueCat dashboard. (Debug: ${e.message})`);
+                alert(`Test Purchase Error: To complete the test on web, ensure Stripe Test Mode is configured. (Debug: ${e.message})\n\n[Dev Note: Falling back to direct Firebase update for testing]`);
+                // Fallback to update Firebase directly for testing if Stripe fails
+                await updateSubscription(expectedType);
+            } else {
+                setIsUpdating(false);
             }
-        } finally {
-            setIsUpdating(false);
-            setShowSubscriptions(false);
         }
     };
 
@@ -268,7 +267,7 @@ function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiB
             {showSubscriptions && (
                 <div className="modal-overlay animate-fade-in premium-overlay" onClick={() => setShowSubscriptions(false)}>
                     {/* Glassmorphism Premium Container */}
-                    <div className="modal-content animate-pop-in premium-modal-content" onClick={e => e.stopPropagation()} style={{maxWidth: '1000px'}}>
+                    <div className="modal-content animate-pop-in premium-modal-content" onClick={e => e.stopPropagation()} style={{maxWidth: '1200px', width: '95%', maxHeight: '95vh', overflow: 'hidden', display: 'flex', flexDirection: 'column'}}>
                         <button className="modal-close-btn premium-close" onClick={() => setShowSubscriptions(false)}>✕</button>
                         
                         <div className="premium-modal-header">
@@ -277,78 +276,119 @@ function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiB
                             {isPro && <div className="active-pro-badge pulse">⭐ You are currently a Pro member! ⭐</div>}
                         </div>
 
-                        <div className="pricing-grid-horizontal premium-pricing-grid">
+                        <div className="pricing-grid-horizontal premium-pricing-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px' }}>
                             {/* Free Plan */}
-                            <div className="pricing-card premium-card glass-card basic-tier">
+                            <div className="pricing-card premium-card glass-card basic-tier" style={{ padding: '20px 15px' }}>
                                 <div className="tier-header">
-                                    <h3>Free</h3>
-                                    <p className="tier-desc">For individuals & students</p>
+                                    <h3 style={{ fontSize: '20px' }}>Free</h3>
                                 </div>
-                                <div className="price-container">
-                                    <span className="price">$0</span><span className="period">/mo</span>
+                                <div className="price-container" style={{ marginBottom: '15px' }}>
+                                    <span className="price" style={{ fontSize: '32px' }}>$0</span><span className="period">/mo</span>
                                 </div>
-                                <ul className="premium-features-list">
+                                <ul className="premium-features-list" style={{ marginBottom: '15px' }}>
                                     <li><i className="check-icon">✓</i> Basic AI Reports</li>
-                                    <li><i className="check-icon">✓</i> 10 Scans per month</li>
-                                    <li><i className="check-icon">✓</i> Standard Support</li>
+                                    <li><i className="check-icon">✓</i> 5 Scans per day</li>
+                                    <li><i className="check-icon" style={{color: '#e11d48'}}>✕</i> Viewer App access</li>
                                 </ul>
-                                <button className="nav-btn-outline premium-btn-outline" onClick={() => { setShowSubscriptions(false); setCurrentView('signup'); }}>
-                                    Current Plan
-                                </button>
+                                {!loggedInUser ? (
+                                    <button className="nav-btn-outline premium-btn-outline" disabled style={{opacity: 0.6, cursor: 'not-allowed', borderColor: 'rgba(255,255,255,0.1)', color: '#888', padding: '10px', fontSize: '13px'}}>
+                                        Lütfen giriş yapın
+                                    </button>
+                                ) : (
+                                    <button className="nav-btn-outline premium-btn-outline" style={{ padding: '10px' }} onClick={() => { setShowSubscriptions(false); }}>
+                                        Current Plan
+                                    </button>
+                                )}
                             </div>
 
-                            {/* Pro Plan (RevenueCat) */}
-                            <div className="pricing-card premium-card glass-card popular-tier">
-                                <div className="card-glow"></div>
-                                <div className="popular-badge gold-badge">RECOMMENDED</div>
+                            {/* Pro Plan */}
+                            <div className="pricing-card premium-card glass-card basic-tier" style={{ padding: '20px 15px' }}>
                                 <div className="tier-header">
-                                    <h3>Pro</h3>
-                                    <p className="tier-desc">For professionals & small shops</p>
+                                    <h3 style={{ fontSize: '20px' }}>Skanesis Pro</h3>
                                 </div>
-                                <div className="price-container">
-                                    <span className="price">{offerings?.monthly ? offerings.monthly.product.priceString : '$49'}</span>
-                                    <span className="period">/mo</span>
+                                <div className="price-container" style={{ marginBottom: '15px' }}>
+                                    <span className="price" style={{ fontSize: '32px' }}>$5</span><span className="period">/mo</span>
                                 </div>
-                                <ul className="premium-features-list">
-                                    <li className="highlight-feature"><i className="check-icon gold-icon">★</i> Unlimited AI Detection</li>
-                                    <li className="highlight-feature"><i className="check-icon gold-icon">★</i> Uncapped High-Res Scans</li>
-                                    <li><i className="check-icon">✓</i> Cloud Sync & Export</li>
-                                    <li><i className="check-icon">✓</i> Priority Rendering</li>
+                                <ul className="premium-features-list" style={{ marginBottom: '15px' }}>
+                                    <li className="highlight-feature"><i className="check-icon gold-icon">★</i> Full Viewer App access</li>
+                                    <li><i className="check-icon">✓</i> Unlimited downloading</li>
+                                    <li><i className="check-icon">✓</i> Advanced measuring tools</li>
                                 </ul>
-                                <button 
-                                    className={`nav-btn-filled premium-submit-btn ${isUpdating ? 'processing' : ''}`} 
-                                    disabled={isUpdating || isPro} 
-                                    onClick={() => {
-                                        if (offerings?.monthly) {
-                                            handlePurchase(offerings.monthly);
-                                        } else {
-                                            // Fallback for demo or if no offerings fetched
-                                            handlePurchase({ product: "demo-package" });
-                                        }
-                                    }}
-                                >
-                                    {isUpdating ? 'Processing...' : (isPro ? 'Active Subscription' : 'Upgrade to Pro')}
-                                </button>
+                                {!loggedInUser ? (
+                                    <button className="nav-btn-filled premium-submit-btn" disabled style={{opacity: 0.6, cursor: 'not-allowed', background: '#2c3344', color: '#8b9bb4', boxShadow: 'none', padding: '10px', fontSize: '13px'}}>
+                                        Lütfen giriş yapın
+                                    </button>
+                                ) : loggedInUser.subscriptionType === 'premium' ? (
+                                    <button className="nav-btn-outline premium-btn-outline" disabled style={{opacity: 0.5, cursor: 'not-allowed', padding: '10px'}}>Active Plan</button>
+                                ) : (
+                                    <button 
+                                        className={`nav-btn-filled premium-submit-btn ${isUpdating ? 'processing' : ''}`} 
+                                        style={{ padding: '10px' }}
+                                        disabled={isUpdating} 
+                                        onClick={() => handlePurchase(offerings?.monthly, 'premium')}
+                                    >
+                                        {isUpdating ? 'Wait...' : 'Upgrade to Pro'}
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Pro++ Plan (RevenueCat) */}
+                            <div className="pricing-card premium-card glass-card popular-tier" style={{ padding: '20px 15px' }}>
+                                <div className="card-glow"></div>
+                                <div className="popular-badge gold-badge" style={{ fontSize: '10px', padding: '3px 8px' }}>RECOMMENDED</div>
+                                <div className="tier-header">
+                                    <h3 style={{ fontSize: '20px' }}>Skanesis Pro++</h3>
+                                </div>
+                                <div className="price-container" style={{ marginBottom: '15px' }}>
+                                    <span className="price" style={{ fontSize: '32px' }}>$10</span><span className="period">/mo</span>
+                                </div>
+                                <ul className="premium-features-list" style={{ marginBottom: '15px' }}>
+                                    <li className="highlight-feature"><i className="check-icon gold-icon">★</i> Complete AI Support</li>
+                                    <li className="highlight-feature"><i className="check-icon gold-icon">★</i> Automated Report Gen</li>
+                                    <li><i className="check-icon">✓</i> Unlimited downloading</li>
+                                </ul>
+                                {!loggedInUser ? (
+                                    <button className="nav-btn-filled premium-submit-btn" disabled style={{opacity: 0.6, cursor: 'not-allowed', background: '#2c3344', color: '#8b9bb4', boxShadow: 'none', padding: '10px', fontSize: '13px'}}>
+                                        Lütfen giriş yapın
+                                    </button>
+                                ) : loggedInUser.subscriptionType === 'premium plus' ? (
+                                    <button className="nav-btn-outline premium-btn-outline" disabled style={{opacity: 0.5, cursor: 'not-allowed', padding: '10px'}}>Active Plan</button>
+                                ) : (
+                                    <button 
+                                        className={`nav-btn-filled premium-submit-btn ${isUpdating ? 'processing' : ''}`} 
+                                        style={{ padding: '10px' }}
+                                        disabled={isUpdating} 
+                                        onClick={() => handlePurchase(offerings?.annual, 'premium plus')}
+                                    >
+                                        {isUpdating ? 'Wait...' : 'Upgrade to Pro++'}
+                                    </button>
+                                )}
                             </div>
 
                             {/* Admin/Enterprise Plan */}
-                            <div className="pricing-card premium-card glass-card enterprise-tier">
+                            <div className="pricing-card premium-card glass-card enterprise-tier" style={{ padding: '20px 15px' }}>
                                 <div className="tier-header">
-                                    <h3>Enterprise</h3>
-                                    <p className="tier-desc">For large industrial teams</p>
+                                    <h3 style={{ fontSize: '20px' }}>Admin</h3>
                                 </div>
-                                <div className="price-container">
-                                    <span className="price">Custom</span>
+                                <div className="price-container" style={{ marginBottom: '15px' }}>
+                                    <span className="price" style={{ fontSize: '32px' }}>$100</span><span className="period">/mo</span>
                                 </div>
-                                <ul className="premium-features-list">
-                                    <li><i className="check-icon">✓</i> Custom AI Workflows</li>
-                                    <li><i className="check-icon">✓</i> Unlimited Users</li>
-                                    <li><i className="check-icon">✓</i> Dedicated Account Manager</li>
-                                    <li><i className="check-icon">✓</i> On-Premise Deployment</li>
+                                <ul className="premium-features-list" style={{ marginBottom: '15px' }}>
+                                    <li className="highlight-feature"><i className="check-icon gold-icon">★</i> Add sub-users ($2/mo)</li>
+                                    <li><i className="check-icon">✓</i> Dedicated Admin Panel</li>
+                                    <li><i className="check-icon">✓</i> All Pro++ Features</li>
                                 </ul>
-                                <button className="nav-btn-outline premium-btn-outline" onClick={() => { setShowSubscriptions(false); }}>
-                                    Contact Sales
-                                </button>
+                                {!loggedInUser ? (
+                                    <button className="nav-btn-outline premium-btn-outline" disabled style={{opacity: 0.6, cursor: 'not-allowed', borderColor: 'rgba(255,255,255,0.1)', color: '#888', padding: '10px', fontSize: '13px'}}>
+                                        Lütfen giriş yapın
+                                    </button>
+                                ) : loggedInUser.role === 'admin' || loggedInUser.subscriptionType === 'admin' ? (
+                                    <button className="nav-btn-outline premium-btn-outline" disabled style={{opacity: 0.5, cursor: 'not-allowed', padding: '10px'}}>Active Plan</button>
+                                ) : (
+                                    <button className="nav-btn-outline premium-btn-outline" onClick={() => updateSubscription('admin')} style={{ padding: '10px' }}>
+                                        Upgrade to Admin
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>

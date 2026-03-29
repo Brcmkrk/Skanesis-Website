@@ -429,7 +429,7 @@ function App() {
   };
 
   return (
-    <div className="App">
+    <div className={`App ${['login', 'signup', 'verification'].includes(currentView) ? 'auth-locked' : ''}`}>
       <div key={currentView} className="view-transition-container">
         {/* Company Page (Weld Scan Technologies) */}
         {currentView === 'company' ? (
