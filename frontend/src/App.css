@@ -499,7 +499,7 @@ body {
 
 /* === NAVIGATION BAR === */
 .navbar {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -674,12 +674,12 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start; /* Prevent top cutoff when content > 100vh */
   align-items: center;
   position: relative;
-  overflow: hidden;
-  padding-top: 80px;
-  /* Offset for navbar */
+  overflow-x: hidden; /* Allow vertical scroll, hide horizontal */
+  padding-top: 140px; /* Offset for navbar and breathing room */
+  padding-bottom: 60px; /* Buffer space at bottom */
 }
 
 .hero-section {
