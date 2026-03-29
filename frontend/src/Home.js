@@ -18,6 +18,9 @@ function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiB
 
     // RevenueCat integration
     const [offerings, setOfferings] = useState(null);
+    const [proPkg, setProPkg] = useState(null);
+    const [proPlusPkg, setProPlusPkg] = useState(null);
+    const [adminPkg, setAdminPkg] = useState(null);
     const [isPro, setIsPro] = useState(false);
 
     useEffect(() => {
@@ -29,8 +32,26 @@ function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiB
                 
                 // Fetch dynamic offerings
                 const offs = await Purchases.getOfferings();
-                if (offs && offs.current) {
-                    setOfferings(offs.current);
+                if (offs) {
+                    const pkgs = offs.current?.availablePackages || [];
+                    
+                    // Accept packages from "current" offering OR from separate custom offerings (if user accidentally created offerings instead of packages)
+                    setProPkg(
+                        offs.all?.['skanesis_pro_5']?.availablePackages[0] || 
+                        pkgs.find(p => p.identifier === 'skanesis_pro' || p.identifier === '$rc_monthly')
+                    );
+                    
+                    setProPlusPkg(
+                        offs.all?.['skanesis_pro_plus_10']?.availablePackages[0] || 
+                        pkgs.find(p => p.identifier === 'skanesis_pro_plus' || p.identifier === '$rc_annual')
+                    );
+                    
+                    setAdminPkg(
+                        offs.all?.['skanesis_admin']?.availablePackages[0] || 
+                        pkgs.find(p => p.identifier === 'skanesis_admin')
+                    );
+                    
+                    if (offs.current) setOfferings(offs.current);
                 }
 
                 // Check entitlements
@@ -50,20 +71,18 @@ function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiB
 
     const handlePurchase = async (pkg, expectedType) => {
         if (!pkg) {
-            // Fallback for demo or test mode if RevenueCat products aren't fully configured
+            alert(`[GELİŞTİRİCİ NOTU] RevenueCat'te "${expectedType}" için bu paket bulunamadı (Tüm ürün paketlerini RevenueCat paneline 'monthly' / 'annual' ID'siyle eklediğinize emin olun). Test akışı için satın alma başarıyla simüle ediliyor ve Firebase'iniz güncelleniyor!`);
             return updateSubscription(expectedType);
         }
         setIsUpdating(true);
         try {
             const { customerInfo } = await Purchases.purchasePackage(pkg);
-            // On successful RC purchase, explicitly sync with the Firebase backend
-            // so the user's role and type match the Skanesis logic
             await updateSubscription(expectedType);
-            alert(`Subscription Success: You are now a ${expectedType.toUpperCase()} user!`);
+            alert(`Tebrikler! Satın alma tamamlandı ve artık ${expectedType.toUpperCase()} kullanıcısısınız!\n\n(Not: RevenueCat test satın alımları "Overview" sayfasında gözükmez, verileri görmek için sağ üstten "Sandbox" filtresini açmalısınız!)`);
         } catch (e) {
             console.error("Purchase error", e);
             if (!e.userCancelled) {
-                alert(`Test Purchase Error: To complete the test on web, ensure Stripe Test Mode is configured. (Debug: ${e.message})\n\n[Dev Note: Falling back to direct Firebase update for testing]`);
+                alert(`RevenueCat / Stripe Hatası: Lütfen Stripe Test Anahtarlarınızın RevenueCat'e girildiğinden emin olun. (Hata: ${e.message})\n\nFirebase testiniz için simülasyona devam ediliyor...`);
                 // Fallback to update Firebase directly for testing if Stripe fails
                 await updateSubscription(expectedType);
             } else {
@@ -267,7 +286,7 @@ function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiB
             {showSubscriptions && (
                 <div className="modal-overlay animate-fade-in premium-overlay" onClick={() => setShowSubscriptions(false)}>
                     {/* Glassmorphism Premium Container */}
-                    <div className="modal-content animate-pop-in premium-modal-content" onClick={e => e.stopPropagation()} style={{maxWidth: '1200px', width: '95%', maxHeight: '95vh', overflow: 'hidden', display: 'flex', flexDirection: 'column'}}>
+                    <div className="modal-content animate-pop-in premium-modal-content" onClick={e => e.stopPropagation()} style={{maxWidth: '1250px', width: '95vw', maxHeight: '98vh', padding: '30px', boxSizing: 'border-box', overflow: 'hidden', display: 'flex', flexDirection: 'column'}}>
                         <button className="modal-close-btn premium-close" onClick={() => setShowSubscriptions(false)}>✕</button>
                         
                         <div className="premium-modal-header">
@@ -276,9 +295,9 @@ function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiB
                             {isPro && <div className="active-pro-badge pulse">⭐ You are currently a Pro member! ⭐</div>}
                         </div>
 
-                        <div className="pricing-grid-horizontal premium-pricing-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px' }}>
+                        <div className="pricing-grid-horizontal premium-pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gap: '15px', width: '100%', boxSizing: 'border-box' }}>
                             {/* Free Plan */}
-                            <div className="pricing-card premium-card glass-card basic-tier" style={{ padding: '20px 15px' }}>
+                            <div className="pricing-card premium-card glass-card basic-tier" style={{ padding: '20px 15px', minWidth: '0' }}>
                                 <div className="tier-header">
                                     <h3 style={{ fontSize: '20px' }}>Free</h3>
                                 </div>
@@ -302,7 +321,7 @@ function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiB
                             </div>
 
                             {/* Pro Plan */}
-                            <div className="pricing-card premium-card glass-card basic-tier" style={{ padding: '20px 15px' }}>
+                            <div className="pricing-card premium-card glass-card basic-tier" style={{ padding: '20px 15px', minWidth: '0' }}>
                                 <div className="tier-header">
                                     <h3 style={{ fontSize: '20px' }}>Skanesis Pro</h3>
                                 </div>
@@ -327,7 +346,7 @@ function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiB
                                         className={`nav-btn-filled premium-submit-btn ${isUpdating ? 'processing' : ''}`} 
                                         style={{ padding: '10px' }}
                                         disabled={isUpdating} 
-                                        onClick={() => handlePurchase(offerings?.monthly, 'premium')}
+                                        onClick={() => handlePurchase(proPkg, 'premium')}
                                     >
                                         {isUpdating ? 'Wait...' : 'Upgrade to Pro'}
                                     </button>
@@ -335,7 +354,7 @@ function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiB
                             </div>
 
                             {/* Pro++ Plan (RevenueCat) */}
-                            <div className="pricing-card premium-card glass-card popular-tier" style={{ padding: '20px 15px' }}>
+                            <div className="pricing-card premium-card glass-card popular-tier" style={{ padding: '20px 15px', minWidth: '0' }}>
                                 <div className="card-glow"></div>
                                 <div className="popular-badge gold-badge" style={{ fontSize: '10px', padding: '3px 8px' }}>RECOMMENDED</div>
                                 <div className="tier-header">
@@ -362,7 +381,7 @@ function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiB
                                         className={`nav-btn-filled premium-submit-btn ${isUpdating ? 'processing' : ''}`} 
                                         style={{ padding: '10px' }}
                                         disabled={isUpdating} 
-                                        onClick={() => handlePurchase(offerings?.annual, 'premium plus')}
+                                        onClick={() => handlePurchase(proPlusPkg, 'premium plus')}
                                     >
                                         {isUpdating ? 'Wait...' : 'Upgrade to Pro++'}
                                     </button>
@@ -370,7 +389,7 @@ function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiB
                             </div>
 
                             {/* Admin/Enterprise Plan */}
-                            <div className="pricing-card premium-card glass-card enterprise-tier" style={{ padding: '20px 15px' }}>
+                            <div className="pricing-card premium-card glass-card enterprise-tier" style={{ padding: '20px 15px', minWidth: '0' }}>
                                 <div className="tier-header">
                                     <h3 style={{ fontSize: '20px' }}>Admin</h3>
                                 </div>
@@ -389,8 +408,13 @@ function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiB
                                 ) : loggedInUser.role === 'admin' || loggedInUser.subscriptionType === 'admin' ? (
                                     <button className="nav-btn-outline premium-btn-outline" disabled style={{opacity: 0.5, cursor: 'not-allowed', padding: '10px'}}>Active Plan</button>
                                 ) : (
-                                    <button className="nav-btn-outline premium-btn-outline" onClick={() => updateSubscription('admin')} style={{ padding: '10px' }}>
-                                        Upgrade to Admin
+                                    <button 
+                                        className={`nav-btn-outline premium-btn-outline ${isUpdating ? 'processing' : ''}`} 
+                                        onClick={() => handlePurchase(adminPkg, 'admin')} 
+                                        style={{ padding: '10px' }}
+                                        disabled={isUpdating}
+                                    >
+                                        {isUpdating ? 'Wait...' : 'Upgrade to Admin'}
                                     </button>
                                 )}
                             </div>
