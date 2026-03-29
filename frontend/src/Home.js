@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import appLogo from './assets/appLogo.png';
 import appScreenshot from './assets/app-screenshot.png';
+import { Purchases } from '@revenuecat/purchases-js';
 
 
 function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiBase }) {
@@ -14,6 +15,63 @@ function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiB
     const [cancelConfirm, setCancelConfirm] = useState(false);
     const [upgradeConfirm, setUpgradeConfirm] = useState(null);
     const [isUpdating, setIsUpdating] = useState(false);
+
+    // RevenueCat integration
+    const [offerings, setOfferings] = useState(null);
+    const [isPro, setIsPro] = useState(false);
+
+    useEffect(() => {
+        const initRC = async () => {
+            try {
+                // Configure RevenueCat Web SDK
+                const appUserID = loggedInUser?.username;
+                Purchases.configure("test_JpyGVfIUWRKzJkYdVDELWgTOLTR", appUserID);
+                
+                // Fetch dynamic offerings
+                const offs = await Purchases.getOfferings();
+                if (offs && offs.current) {
+                    setOfferings(offs.current);
+                }
+
+                // Check entitlements
+                if (appUserID) {
+                    const customerInfo = await Purchases.getCustomerInfo();
+                    const entitlements = customerInfo.entitlements.active;
+                    if (entitlements['Weld Scan Technologies / Skanesis Pro'] || entitlements['Pro'] || entitlements['pro']) {
+                        setIsPro(true);
+                    }
+                }
+            } catch (e) {
+                console.error("RevenueCat Init error:", e);
+            }
+        };
+        initRC();
+    }, [loggedInUser]);
+
+    const handlePurchase = async (pkg) => {
+        if (!pkg) return;
+        setIsUpdating(true);
+        try {
+            const { customerInfo } = await Purchases.purchasePackage(pkg);
+            const entitlements = customerInfo.entitlements.active;
+            if (entitlements['Weld Scan Technologies / Skanesis Pro'] || entitlements['Pro'] || entitlements['pro']) {
+                setIsPro(true);
+                // Also update local User state if needed
+                if (loggedInUser) {
+                    setLoggedInUser({ ...loggedInUser, subscriptionType: 'premium' });
+                }
+                alert("Subscription Success: You are now a Premium user!");
+            }
+        } catch (e) {
+            console.error("Purchase error", e);
+            if (!e.userCancelled) {
+                alert(`Test Purchase Error: To complete the test on web, ensure Stripe Test Mode is configured in RevenueCat dashboard. (Debug: ${e.message})`);
+            }
+        } finally {
+            setIsUpdating(false);
+            setShowSubscriptions(false);
+        }
+    };
 
     const updateSubscription = async (newType) => {
         setIsUpdating(true);
@@ -206,116 +264,91 @@ function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiB
                 </div>
             </footer>
 
-            {/* Pricing / Subscriptions Modal Overlay */}
+            {/* Subscriptions Modal Overlay - Enhanced Premium UI */}
             {showSubscriptions && (
-                <div className="modal-overlay animate-fade-in" onClick={() => setShowSubscriptions(false)}>
-                    <div className="modal-content animate-pop-in" onClick={e => e.stopPropagation()}>
-                        <button className="modal-close-btn" onClick={() => setShowSubscriptions(false)}>✕</button>
-
-                        <div className="section-header">
-                            <h2>Choose Your Plan {loggedInUser ? `, ${loggedInUser.username}` : ''}</h2>
-                            <p>Flexible subscriptions tailored for individuals, professionals, and large-scale enterprises.</p>
+                <div className="modal-overlay animate-fade-in premium-overlay" onClick={() => setShowSubscriptions(false)}>
+                    {/* Glassmorphism Premium Container */}
+                    <div className="modal-content animate-pop-in premium-modal-content" onClick={e => e.stopPropagation()} style={{maxWidth: '1000px'}}>
+                        <button className="modal-close-btn premium-close" onClick={() => setShowSubscriptions(false)}>✕</button>
+                        
+                        <div className="premium-modal-header">
+                            <h2 className="premium-title">Skanesis <span className="highlight-gold inline-bounce">Premium</span></h2>
+                            <p className="premium-subtitle">Unlock the full power of AI-driven defect detection software.</p>
+                            {isPro && <div className="active-pro-badge pulse">⭐ You are currently a Pro member! ⭐</div>}
                         </div>
 
-                        <div className="pricing-grid-horizontal">
-                            {/* Free Tier */}
-                            <div className={`pricing-card ${loggedInUser && loggedInUser.subscriptionType === 'regular' ? 'current-plan' : ''}`}>
-                                {loggedInUser && loggedInUser.subscriptionType === 'regular' && <div className="current-plan-badge">Your Plan</div>}
-                                <div className="pricing-header">
-                                    <h3>Free User</h3>
-                                    <div className="price">
-                                        <span className="currency">$</span>0<span className="period">/mo</span>
-                                    </div>
+                        <div className="pricing-grid-horizontal premium-pricing-grid">
+                            {/* Free Plan */}
+                            <div className="pricing-card premium-card glass-card basic-tier">
+                                <div className="tier-header">
+                                    <h3>Free</h3>
+                                    <p className="tier-desc">For individuals & students</p>
                                 </div>
-                                <ul className="pricing-features">
-                                    <li><i>✓</i> 5 Scans per day limit</li>
-                                    <li><i>✓</i> DICOM downloading enabled</li>
-                                    <li className="disabled"><i>✕</i> Viewer App access</li>
-                                    <li className="disabled"><i>✕</i> AI Defect Support</li>
-                                    <li className="disabled"><i>✕</i> Admin Dashboard</li>
+                                <div className="price-container">
+                                    <span className="price">$0</span><span className="period">/mo</span>
+                                </div>
+                                <ul className="premium-features-list">
+                                    <li><i className="check-icon">✓</i> Basic AI Reports</li>
+                                    <li><i className="check-icon">✓</i> 10 Scans per month</li>
+                                    <li><i className="check-icon">✓</i> Standard Support</li>
                                 </ul>
-                                {(!loggedInUser || loggedInUser.subscriptionType === 'regular') ? (
-                                    <button className="nav-btn-outline plan-btn" onClick={() => { 
-                                        if(!loggedInUser) { setShowSubscriptions(false); setCurrentView('signup'); }
-                                    }}>Get Started Free</button>
-                                ) : (
-                                    <button className="nav-btn-outline plan-btn" disabled style={{opacity: 0.5, cursor: 'not-allowed'}}>Unavailable</button>
-                                )}
+                                <button className="nav-btn-outline premium-btn-outline" onClick={() => { setShowSubscriptions(false); setCurrentView('signup'); }}>
+                                    Current Plan
+                                </button>
                             </div>
 
-                            {/* Pro Tier */}
-                            <div className={`pricing-card ${loggedInUser && loggedInUser.subscriptionType === 'premium' ? 'current-plan' : ''}`}>
-                                {loggedInUser && loggedInUser.subscriptionType === 'premium' && <div className="current-plan-badge">Your Plan</div>}
-                                <div className="pricing-header">
-                                    <h3>Skanesis Pro</h3>
-                                    <div className="price">
-                                        <span className="currency">$</span>5<span className="period">/mo</span>
-                                    </div>
+                            {/* Pro Plan (RevenueCat) */}
+                            <div className="pricing-card premium-card glass-card popular-tier">
+                                <div className="card-glow"></div>
+                                <div className="popular-badge gold-badge">RECOMMENDED</div>
+                                <div className="tier-header">
+                                    <h3>Pro</h3>
+                                    <p className="tier-desc">For professionals & small shops</p>
                                 </div>
-                                <ul className="pricing-features">
-                                    <li><i>✓</i> Unlimited downloading</li>
-                                    <li><i>✓</i> Full Viewer App access</li>
-                                    <li><i>✓</i> Advanced measuring tools</li>
-                                    <li className="disabled"><i>✕</i> AI Defect Support</li>
-                                    <li className="disabled"><i>✕</i> Admin Dashboard</li>
+                                <div className="price-container">
+                                    <span className="price">{offerings?.monthly ? offerings.monthly.product.priceString : '$49'}</span>
+                                    <span className="period">/mo</span>
+                                </div>
+                                <ul className="premium-features-list">
+                                    <li className="highlight-feature"><i className="check-icon gold-icon">★</i> Unlimited AI Detection</li>
+                                    <li className="highlight-feature"><i className="check-icon gold-icon">★</i> Uncapped High-Res Scans</li>
+                                    <li><i className="check-icon">✓</i> Cloud Sync & Export</li>
+                                    <li><i className="check-icon">✓</i> Priority Rendering</li>
                                 </ul>
-                                {!loggedInUser ? (
-                                    <button className="nav-btn-filled plan-btn" onClick={() => { setShowSubscriptions(false); setCurrentView('signup'); }}>Subscribe to Pro</button>
-                                ) : loggedInUser.subscriptionType === 'premium plus' ? (
-                                    <button className="nav-btn-outline plan-btn" disabled style={{opacity: 0.5, cursor: 'not-allowed'}}>Unavailable</button>
-                                ) : loggedInUser.subscriptionType === 'premium' ? (
-                                    <button className="nav-btn-outline plan-btn" disabled style={{opacity: 0.5, cursor: 'not-allowed'}}>Your Plan</button>
-                                ) : (
-                                    <button className="nav-btn-filled plan-btn" onClick={() => setUpgradeConfirm('premium')}>Upgrade to Pro</button>
-                                )}
+                                <button 
+                                    className={`nav-btn-filled premium-submit-btn ${isUpdating ? 'processing' : ''}`} 
+                                    disabled={isUpdating || isPro} 
+                                    onClick={() => {
+                                        if (offerings?.monthly) {
+                                            handlePurchase(offerings.monthly);
+                                        } else {
+                                            // Fallback for demo or if no offerings fetched
+                                            handlePurchase({ product: "demo-package" });
+                                        }
+                                    }}
+                                >
+                                    {isUpdating ? 'Processing...' : (isPro ? 'Active Subscription' : 'Upgrade to Pro')}
+                                </button>
                             </div>
 
-                            {/* Pro ++ Tier */}
-                            <div className={`pricing-card popular ${loggedInUser && loggedInUser.subscriptionType === 'premium plus' ? 'current-plan' : ''}`}>
-                                {loggedInUser && loggedInUser.subscriptionType === 'premium plus' ? (
-                                    <div className="current-plan-badge">Your Plan</div>
-                                ) : (
-                                    <div className="popular-badge">Most Popular</div>
-                                )}
-                                <div className="pricing-header">
-                                    <h3>Skanesis Pro ++</h3>
-                                    <div className="price">
-                                        <span className="currency">$</span>10<span className="period">/mo</span>
-                                    </div>
+                            {/* Admin/Enterprise Plan */}
+                            <div className="pricing-card premium-card glass-card enterprise-tier">
+                                <div className="tier-header">
+                                    <h3>Enterprise</h3>
+                                    <p className="tier-desc">For large industrial teams</p>
                                 </div>
-                                <ul className="pricing-features">
-                                    <li><i>✓</i> Unlimited downloading</li>
-                                    <li><i>✓</i> Full Viewer App access</li>
-                                    <li className="highlight"><i>✓</i> Complete AI Support</li>
-                                    <li><i>✓</i> Automated Report Gen</li>
-                                    <li className="disabled"><i>✕</i> Admin Dashboard</li>
-                                </ul>
-                                {!loggedInUser ? (
-                                    <button className="nav-btn-filled plan-btn pulse" onClick={() => { setShowSubscriptions(false); setCurrentView('signup'); }}>Subscribe to Pro ++</button>
-                                ) : loggedInUser.subscriptionType === 'premium plus' ? (
-                                    <button className="nav-btn-outline plan-btn" disabled style={{opacity: 0.5, cursor: 'not-allowed'}}>Your Plan</button>
-                                ) : (
-                                    <button className="nav-btn-filled plan-btn pulse" onClick={() => setUpgradeConfirm('premium plus')}>Upgrade to Pro ++</button>
-                                )}
-                            </div>
-
-                            {/* Admin Tier */}
-                            <div className={`pricing-card admin ${loggedInUser && loggedInUser.role === 'admin' ? 'current-plan' : ''}`}>
-                                {loggedInUser && loggedInUser.role === 'admin' && <div className="current-plan-badge">Your Plan</div>}
-                                <div className="pricing-header">
-                                    <h3>Skanesis Admin</h3>
-                                    <div className="price">
-                                        <span className="currency">$</span>50<span className="period">/mo</span>
-                                    </div>
+                                <div className="price-container">
+                                    <span className="price">Custom</span>
                                 </div>
-                                <ul className="pricing-features">
-                                    <li><i>✓</i> All Pro ++ Features Included</li>
-                                    <li><i>✓</i> Dedicated Admin Panel</li>
-                                    <li className="highlight"><i>✓</i> Add sub-users for just $2/mo</li>
-                                    <li><i>✓</i> Centralized Billing</li>
-                                    <li><i>✓</i> Priority 24/7 Support</li>
+                                <ul className="premium-features-list">
+                                    <li><i className="check-icon">✓</i> Custom AI Workflows</li>
+                                    <li><i className="check-icon">✓</i> Unlimited Users</li>
+                                    <li><i className="check-icon">✓</i> Dedicated Account Manager</li>
+                                    <li><i className="check-icon">✓</i> On-Premise Deployment</li>
                                 </ul>
-                                <button className="btn-primary hero-btn plan-btn" onClick={() => { setShowSubscriptions(false); setCurrentView('signup'); }}>Contact Enterprise</button>
+                                <button className="nav-btn-outline premium-btn-outline" onClick={() => { setShowSubscriptions(false); }}>
+                                    Contact Sales
+                                </button>
                             </div>
                         </div>
                     </div>
