@@ -114,17 +114,24 @@ function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiB
                         for modern industrial workflows. Fast, accurate, and completely secure.
                     </p>
 
-                    <div className="hero-cta-group bounce-in" style={{ animationDelay: '0.9s' }}>
-                        <button
-                            className="btn-primary hero-btn"
-                            onClick={() => setCurrentView('signup')}
-                        >
-                            Get Started Now
-                        </button>
-                        <button className="btn-secondary hero-btn">
-                            Watch Demo
-                        </button>
-                    </div>
+                    {!loggedInUser && (
+                        <div className="hero-cta-group bounce-in" style={{ animationDelay: '0.9s' }}>
+                            <button
+                                className="btn-primary hero-btn"
+                                onClick={() => setCurrentView('signup')}
+                            >
+                                Get Started Now
+                            </button>
+                            <a 
+                                href="/WeldScanViewer.exe" 
+                                download="WeldScanViewer.exe" 
+                                className="btn-secondary hero-btn"
+                                style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                            >
+                                Download Desktop App
+                            </a>
+                        </div>
+                    )}
                 </div>
 
                 {/* Dashboard Mockup / Image Placeholder */}

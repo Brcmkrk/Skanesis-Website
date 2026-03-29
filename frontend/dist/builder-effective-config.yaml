@@ -1,0 +1,15 @@
+directories:
+  output: dist
+  buildResources: build
+appId: com.skanesis.app
+productName: Skanesis
+copyright: Copyright © 2026 Weld Scan Technologies
+win:
+  target: nsis
+  icon: public/favicon.ico
+files:
+  - filter:
+      - build/**/*
+      - public/electron.js
+extends: null
+electronVersion: 33.4.11
