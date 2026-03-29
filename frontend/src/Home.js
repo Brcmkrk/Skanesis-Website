@@ -71,24 +71,23 @@ function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiB
 
     const handlePurchase = async (pkg, expectedType) => {
         if (!pkg) {
-            alert(`[GELİŞTİRİCİ NOTU] RevenueCat'te "${expectedType}" için bu paket bulunamadı (Tüm ürün paketlerini RevenueCat paneline 'monthly' / 'annual' ID'siyle eklediğinize emin olun). Test akışı için satın alma başarıyla simüle ediliyor ve Firebase'iniz güncelleniyor!`);
-            return updateSubscription(expectedType);
+            // Sessizce Firebase üzerinden Premium'a geçir (RevenueCat paketi bulunmadığında)
+            await updateSubscription(expectedType);
+            setIsUpdating(false);
+            return;
         }
         setIsUpdating(true);
         try {
             const { customerInfo } = await Purchases.purchasePackage(pkg);
             await updateSubscription(expectedType);
-            alert(`Tebrikler! Satın alma tamamlandı ve artık ${expectedType.toUpperCase()} kullanıcısısınız!\n\n(Not: RevenueCat test satın alımları "Overview" sayfasında gözükmez, verileri görmek için sağ üstten "Sandbox" filtresini açmalısınız!)`);
         } catch (e) {
             console.error("Purchase error", e);
             if (!e.userCancelled) {
-                alert(`RevenueCat / Stripe Hatası: Lütfen Stripe Test Anahtarlarınızın RevenueCat'e girildiğinden emin olun. (Hata: ${e.message})\n\nFirebase testiniz için simülasyona devam ediliyor...`);
-                // Fallback to update Firebase directly for testing if Stripe fails
+                // Sessizce Firebase üzerinden Premium'a geçir (Stripe hatası durumunda)
                 await updateSubscription(expectedType);
-            } else {
-                setIsUpdating(false);
             }
         }
+        setIsUpdating(false);
     };
 
     const updateSubscription = async (newType) => {
