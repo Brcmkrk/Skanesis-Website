@@ -64,8 +64,9 @@ def create_user(username, email, password, type):
     try:
         accounts_ref.add(data)
         return 0
-    except Exception:
-        return 5
+    except Exception as e:
+        print(f"Error creating user: {e}")
+        return 5, str(e)
     
 def validate_email(email):
     pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"

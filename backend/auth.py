@@ -22,12 +22,13 @@ ERROR_MESSAGES = {
 }
 
 
-def _build_response(code: int):
+def _build_response(code: int, error_msg: str = None):
     """Convert a logic return code into a JSON HTTP response."""
     if code == 0:
         return jsonify({"success": True, "message": "Account created successfully."}), 201
 
-    message = ERROR_MESSAGES.get(code, "Unknown error.")
+    default_message = ERROR_MESSAGES.get(code, "Unknown error.")
+    final_message = f"{default_message} Details: {error_msg}" if (code == 5 and error_msg) else default_message
 
     # Map logic codes → HTTP status codes
     http_status = {
@@ -38,7 +39,7 @@ def _build_response(code: int):
         5: 500,  # Internal server error
     }.get(code, 400)
 
-    return jsonify({"success": False, "message": message, "code": code}), http_status
+    return jsonify({"success": False, "message": final_message, "code": code}), http_status
 
 
 def _extract_fields(body: dict):
@@ -183,8 +184,10 @@ def register_user():
     # Code is valid, delete verification document
     db.collection("email_verifications").document(email).delete()
 
-    code = create_user(username, email, password, "regular")
-    return _build_response(code)
+    res = create_user(username, email, password, "regular")
+    if isinstance(res, tuple):
+        return _build_response(res[0], res[1])
+    return _build_response(res)
 
 # ── POST /api/auth/login/user (Unified Login with Role Support) ─────────────
 @auth_bp.route("/login/user", methods=["POST"])
