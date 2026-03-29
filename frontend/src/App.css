@@ -800,13 +800,15 @@ body {
   width: 100%;
   height: auto;
   display: block;
-  object-fit: cover;
-  opacity: 0.9;
-  transition: opacity 0.5s ease;
+  opacity: 0.95;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: contrast(1.02) brightness(1.05);
 }
 
 .hero-mockup:hover .mockup-image {
   opacity: 1;
+  transform: scale(1.01);
+  filter: contrast(1.05) brightness(1.1);
 }
 
 .mockup-sidebar {

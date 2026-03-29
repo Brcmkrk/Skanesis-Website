@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import './App.css';
 import appLogo from './assets/appLogo.png';
+import appScreenshot from './assets/app-screenshot.png';
+
 
 function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiBase }) {
     const [showSubscriptions, setShowSubscriptions] = useState(false);
@@ -133,11 +135,7 @@ function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiB
                         <div className="dot green"></div>
                     </div>
                     <div className="mockup-body">
-                        <div className="mockup-sidebar"></div>
-                        <div className="mockup-main">
-                            <div className="mockup-card line"></div>
-                            <div className="mockup-card"></div>
-                        </div>
+                        <img src={appScreenshot} alt="Skanesis Application Preview" className="mockup-image" />
                     </div>
                 </div>
             </section>
