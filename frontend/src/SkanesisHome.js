@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './App.css';
 import appLogo from './assets/appLogo.png';
+import dashboardMockup from './assets/skanesis_dashboard.png';
 
 function SkanesisHome({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiBase }) {
     const [showSubscriptions, setShowSubscriptions] = useState(false);
@@ -106,7 +107,9 @@ function SkanesisHome({ currentView, setCurrentView, loggedInUser, setLoggedInUs
 
                 <div className="hero-mockup bounce-in" style={{ animationDelay: '1.2s' }}>
                     <div className="mockup-header"><div className="dot red"></div><div className="dot yellow"></div><div className="dot green"></div></div>
-                    <div className="mockup-body" style={{height: '300px', display: 'flex', justifyContent: 'center', alignItems: 'center', opacity: 0.5}}>Skanesis Dashboard Mockup</div>
+                    <div className="mockup-body">
+                        <img src={dashboardMockup} alt="Skanesis Dashboard" className="mockup-image" />
+                    </div>
                 </div>
             </section>
 

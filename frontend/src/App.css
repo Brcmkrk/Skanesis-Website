@@ -790,8 +790,23 @@ body {
 }
 
 .mockup-body {
-  height: 350px;
+  height: auto;
+  min-height: 200px;
   display: flex;
+  background: #000;
+}
+
+.mockup-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  opacity: 0.9;
+  transition: opacity 0.5s ease;
+}
+
+.hero-mockup:hover .mockup-image {
+  opacity: 1;
 }
 
 .mockup-sidebar {
