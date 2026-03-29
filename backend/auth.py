@@ -131,7 +131,7 @@ def request_verification():
 
     # Send email
     try:
-        from authenticationLogic.emailService import EmailService
+        from backend.authenticationLogic.emailService import EmailService
         email_service = EmailService()
         email_service.send_verification_code(email, code)
     except Exception as e:
