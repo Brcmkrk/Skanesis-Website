@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
 import './App.css';
 import appLogo from './assets/appLogo.png';
 import Home from './Home';
@@ -8,8 +9,13 @@ const API_BASE = process.env.REACT_APP_API_BASE || "/api/auth";
 
 function App() {
   // 'company', 'home', 'login', 'signup', 'verification'
-  const [currentView, setCurrentView] = useState('company');
   const [loggedInUser, setLoggedInUser] = useState(null);
+  const [currentView, setCurrentView] = useState('company');
+
+  // Scroll to top whenever the view changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentView]);
 
   // Form States - Login
   const [loginUsername, setLoginUsername] = useState("");
@@ -424,35 +430,37 @@ function App() {
 
   return (
     <div className="App">
-      {/* Company Page (Weld Scan Technologies) */}
-      {currentView === 'company' ? (
-        <CompanyHome setCurrentView={setCurrentView} />
-      ) : currentView === 'home' ? (
-        /* Skanesis Product Page */
-        <Home 
-          currentView={currentView} 
-          setCurrentView={setCurrentView} 
-          loggedInUser={loggedInUser} 
-          setLoggedInUser={setLoggedInUser} 
-          apiBase={API_BASE}
-        />
-      ) : (
-        /* Auth Views (Login, Signup, Verification) */
-        <>
-          <nav className="navbar compact animate-slide-up">
-            <div className="nav-brand" onClick={() => setCurrentView('home')} style={{ cursor: 'pointer' }}>
-              <img src={appLogo} alt="Skanesis Logo" className="nav-logo" />
-              <span className="nav-title">Skanesis</span>
-            </div>
-            <div className="nav-links">
-              <button className="nav-btn-outline" onClick={() => setCurrentView('home')}>
-                Back to Skanesis
-              </button>
-            </div>
-          </nav>
-          {renderAuthView()}
-        </>
-      )}
+      <div key={currentView} className="view-transition-container">
+        {/* Company Page (Weld Scan Technologies) */}
+        {currentView === 'company' ? (
+          <CompanyHome setCurrentView={setCurrentView} />
+        ) : currentView === 'home' ? (
+          /* Skanesis Product Page */
+          <Home 
+            currentView={currentView} 
+            setCurrentView={setCurrentView} 
+            loggedInUser={loggedInUser} 
+            setLoggedInUser={setLoggedInUser} 
+            apiBase={API_BASE}
+          />
+        ) : (
+          /* Auth Views (Login, Signup, Verification) */
+          <>
+            <nav className="navbar compact animate-slide-up">
+              <div className="nav-brand" onClick={() => setCurrentView('home')} style={{ cursor: 'pointer' }}>
+                <img src={appLogo} alt="Skanesis Logo" className="nav-logo" />
+                <span className="nav-title">Skanesis</span>
+              </div>
+              <div className="nav-links">
+                <button className="nav-btn-outline" onClick={() => setCurrentView('home')}>
+                  Back to Skanesis
+                </button>
+              </div>
+            </nav>
+            {renderAuthView()}
+          </>
+        )}
+      </div>
     </div>
   );
 }
