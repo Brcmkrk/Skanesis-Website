@@ -294,10 +294,10 @@ function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiB
                                     <button className="nav-btn-outline premium-btn-outline" disabled style={{opacity: 0.6, cursor: 'not-allowed', borderColor: 'rgba(255,255,255,0.1)', color: '#888', padding: '10px', fontSize: '13px'}}>
                                         Lütfen giriş yapın
                                     </button>
+                                ) : (!loggedInUser.subscriptionType || loggedInUser.subscriptionType === 'regular') ? (
+                                    <button className="nav-btn-outline premium-btn-outline" disabled style={{opacity: 0.5, cursor: 'not-allowed', padding: '10px'}}>Active Plan</button>
                                 ) : (
-                                    <button className="nav-btn-outline premium-btn-outline" style={{ padding: '10px' }} onClick={() => { setShowSubscriptions(false); }}>
-                                        Current Plan
-                                    </button>
+                                    <button className="nav-btn-outline premium-btn-outline" style={{ opacity: 0, cursor: 'default', padding: '10px' }} disabled></button>
                                 )}
                             </div>
 
@@ -320,6 +320,8 @@ function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiB
                                     </button>
                                 ) : loggedInUser.subscriptionType === 'premium' ? (
                                     <button className="nav-btn-outline premium-btn-outline" disabled style={{opacity: 0.5, cursor: 'not-allowed', padding: '10px'}}>Active Plan</button>
+                                ) : loggedInUser.subscriptionType === 'premium plus' || loggedInUser.subscriptionType === 'admin' || loggedInUser.role === 'admin' ? (
+                                    <button className="nav-btn-outline premium-btn-outline" disabled style={{opacity: 0.3, cursor: 'not-allowed', padding: '10px'}}>Included in your plan</button>
                                 ) : (
                                     <button 
                                         className={`nav-btn-filled premium-submit-btn ${isUpdating ? 'processing' : ''}`} 
@@ -353,6 +355,8 @@ function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiB
                                     </button>
                                 ) : loggedInUser.subscriptionType === 'premium plus' ? (
                                     <button className="nav-btn-outline premium-btn-outline" disabled style={{opacity: 0.5, cursor: 'not-allowed', padding: '10px'}}>Active Plan</button>
+                                ) : loggedInUser.subscriptionType === 'admin' || loggedInUser.role === 'admin' ? (
+                                    <button className="nav-btn-outline premium-btn-outline" disabled style={{opacity: 0.3, cursor: 'not-allowed', padding: '10px'}}>Included in your plan</button>
                                 ) : (
                                     <button 
                                         className={`nav-btn-filled premium-submit-btn ${isUpdating ? 'processing' : ''}`} 

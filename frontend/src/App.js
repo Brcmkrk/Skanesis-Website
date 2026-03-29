@@ -428,6 +428,19 @@ function App() {
     );
   };
 
+  useEffect(() => {
+    if (['login', 'signup', 'verification'].includes(currentView)) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [currentView]);
+
   return (
     <div className={`App ${['login', 'signup', 'verification'].includes(currentView) ? 'auth-locked' : ''}`}>
       <div key={currentView} className="view-transition-container">
