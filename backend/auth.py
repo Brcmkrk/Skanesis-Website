@@ -261,6 +261,20 @@ def update_subscription():
         return jsonify({"success": False, "message": "User not found"}), 404
 
     doc_id = user_docs[0].id
-    db.collection("accounts").document(doc_id).update({"type": new_type})
+    from firebase_admin import firestore
+    
+    update_data = {"type": new_type}
+    
+    if new_type == "premium":
+        update_data["remaining_ai"] = 5
+        update_data["remaining_scans"] = firestore.DELETE_FIELD
+    elif new_type in ("premium plus", "premium_plus"):
+        update_data["remaining_ai"] = firestore.DELETE_FIELD
+        update_data["remaining_scans"] = firestore.DELETE_FIELD
+    elif new_type == "regular":
+        update_data["remaining_scans"] = 5
+        update_data["remaining_ai"] = firestore.DELETE_FIELD
+        
+    db.collection("accounts").document(doc_id).update(update_data)
 
     return jsonify({"success": True, "message": "Subscription updated successfully", "subscription_type": new_type}), 200

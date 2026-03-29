@@ -37,6 +37,7 @@ def create_user(username, email, password, type):
             "password": hashed_password,
             "role": "user",
             "type": type,
+            "remaining_scans": 5,
             "created_by_admin": None
         }
     elif type == "premium":
@@ -46,6 +47,7 @@ def create_user(username, email, password, type):
             "password": hashed_password,
             "role": "user",
             "type": type,
+            "remaining_scans": 5,
             "created_by_admin": None
         }
     else:
@@ -55,6 +57,7 @@ def create_user(username, email, password, type):
             "password": hashed_password,
             "role": "user",
             "type": type,
+            "remaining_scans": 5,
             "created_by_admin": None
         }
 
