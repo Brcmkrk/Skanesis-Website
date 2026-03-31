@@ -271,13 +271,20 @@ def update_subscription():
     if new_type == "premium":
         update_data["remaining_ai"] = 5
         update_data["remaining_scans"] = firestore.DELETE_FIELD
+        update_data["role"] = "user"
     elif new_type in ("premium plus", "premium_plus"):
         update_data["remaining_ai"] = firestore.DELETE_FIELD
         update_data["remaining_scans"] = firestore.DELETE_FIELD
+        update_data["role"] = "user"
+    elif new_type == "admin":
+        update_data["remaining_ai"] = firestore.DELETE_FIELD
+        update_data["remaining_scans"] = firestore.DELETE_FIELD
+        update_data["role"] = "admin"
     elif new_type == "regular":
         update_data["remaining_scans"] = 5
         update_data["remaining_ai"] = firestore.DELETE_FIELD
+        update_data["role"] = "user"
         
     db.collection("accounts").document(doc_id).update(update_data)
 
-    return jsonify({"success": True, "message": "Subscription updated successfully", "subscription_type": new_type}), 200
+    return jsonify({"success": True, "message": "Subscription updated successfully", "subscription_type": new_type, "role": update_data.get("role", "user")}), 200

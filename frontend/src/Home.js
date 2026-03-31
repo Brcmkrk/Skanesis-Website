@@ -100,7 +100,7 @@ function Home({ currentView, setCurrentView, loggedInUser, setLoggedInUser, apiB
             });
             const data = await res.json();
             if (res.ok && data.success) {
-                setLoggedInUser({ ...loggedInUser, subscriptionType: newType });
+                setLoggedInUser({ ...loggedInUser, subscriptionType: newType, role: data.role || loggedInUser.role });
             } else {
                 alert("Failed to update subscription");
             }
