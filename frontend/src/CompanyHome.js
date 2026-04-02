@@ -46,31 +46,12 @@ function CompanyHome({ setCurrentView }) {
                 </div>
             </section>
 
-            {/* Stats */}
-            <section className="wst-stats">
-                <div className="wst-stat">
-                    <h3 className="wst-stat-num">10+</h3>
-                    <p className="wst-stat-label">Years Experience</p>
-                </div>
-                <div className="wst-stat">
-                    <h3 className="wst-stat-num">30+</h3>
-                    <p className="wst-stat-label">Countries</p>
-                </div>
-                <div className="wst-stat">
-                    <h3 className="wst-stat-num">500+</h3>
-                    <p className="wst-stat-label">Enterprise Clients</p>
-                </div>
-                <div className="wst-stat">
-                    <h3 className="wst-stat-num">99.9%</h3>
-                    <p className="wst-stat-label">Uptime</p>
-                </div>
-            </section>
 
             {/* About */}
             <section id="about" className="wst-section wst-about">
                 <div className="wst-section-header">
                     <h2>About Us</h2>
-                    <p>Weld Scan Technologies has been at the forefront of non-destructive testing innovation for over a decade.</p>
+                    <p>Weld Scan Technologies is an innovative tech company pioneering the next generation of non-destructive testing.</p>
                 </div>
                 <div className="wst-about-grid">
                     <div className="wst-about-card">
@@ -84,9 +65,9 @@ function CompanyHome({ setCurrentView }) {
                         <p>A world where every weld is inspected with precision, preventing failures before they happen through intelligent automation.</p>
                     </div>
                     <div className="wst-about-card">
-                        <span className="wst-about-card-icon">🌍</span>
-                        <h3>Global Reach</h3>
-                        <p>With partners in over 30 countries, we deliver high-performance inspection systems to industries across the globe.</p>
+                        <span className="wst-about-card-icon">🚀</span>
+                        <h3>Innovative Approach</h3>
+                        <p>We leverage the latest advancements in artificial intelligence to deliver high-performance inspection systems for modern industries.</p>
                     </div>
                 </div>
             </section>
