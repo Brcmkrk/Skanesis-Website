@@ -114,21 +114,21 @@ function CompanyHome({ setCurrentView }) {
                             <div className="wst-contact-item-icon">📍</div>
                             <div className="wst-contact-item-text">
                                 <strong>Address</strong>
-                                <span>123 Industry Avenue, Tech District</span>
+                                <span>Üniversiteler Mah., 1608. Cad., 22, 06800 Çankaya/Ankara, Türkiye</span>
                             </div>
                         </div>
                         <div className="wst-contact-item">
                             <div className="wst-contact-item-icon">📧</div>
                             <div className="wst-contact-item-text">
                                 <strong>Email</strong>
-                                <span>contact@weldscantech.com</span>
+                                <span>wstskanesis@gmail.com</span>
                             </div>
                         </div>
                         <div className="wst-contact-item">
                             <div className="wst-contact-item-icon">📞</div>
                             <div className="wst-contact-item-text">
                                 <strong>Phone</strong>
-                                <span>+1 (555) 123-4567</span>
+                                <span>+90 507 214 2626</span>
                             </div>
                         </div>
                     </div>
