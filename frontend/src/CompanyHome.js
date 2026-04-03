@@ -1,6 +1,7 @@
 import React from 'react';
 import './CompanyHome.css';
 import appLogo from './assets/appLogo.png';
+import ndtAdvanced from './assets/NDT-advanced.jpg';
 
 function CompanyHome({ setCurrentView }) {
     return (
@@ -37,11 +38,7 @@ function CompanyHome({ setCurrentView }) {
                         </div>
                     </div>
                     <div className="wst-hero-visual wst-fade-up wst-delay-5">
-                        <div className="wst-hero-graphic">
-                            <span className="wst-graphic-icon">🔬</span>
-                            <span className="wst-graphic-text">Advanced NDT Systems</span>
-                            <span className="wst-graphic-sub">AI-Powered Inspection</span>
-                        </div>
+                        <img src={ndtAdvanced} alt="Advanced NDT Inspection" className="wst-hero-image" />
                     </div>
                 </div>
             </section>
